@@ -45,46 +45,46 @@ namespace Courses.Infrastructure.Data
             {
                 if (typeof(IEntity).IsAssignableFrom(entityType.ClrType))
                 {
-                    // Configure common BaseEntity properties
+                    // استخدام IEntity بدلاً من BaseEntity<Guid>
                     modelBuilder.Entity(entityType.ClrType)
-                        .Property(nameof(BaseEntity<Guid>.CreatedAt))
+                        .Property(nameof(IEntity.CreatedAt))
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     modelBuilder.Entity(entityType.ClrType)
-                        .Property(nameof(BaseEntity<Guid>.UpdatedAt))
+                        .Property(nameof(IEntity.UpdatedAt))
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     modelBuilder.Entity(entityType.ClrType)
-                        .Property(nameof(BaseEntity<Guid>.LastModifiedOn))
+                        .Property(nameof(IEntity.LastModifiedOn))
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     modelBuilder.Entity(entityType.ClrType)
-                        .Property(nameof(BaseEntity<Guid>.IsDeleted))
+                        .Property(nameof(IEntity.IsDeleted))
                         .HasDefaultValue(false);
 
                     modelBuilder.Entity(entityType.ClrType)
-                        .Property(nameof(BaseEntity<Guid>.CreatedBy))
+                        .Property(nameof(IEntity.CreatedBy))
                         .HasMaxLength(450);
 
                     modelBuilder.Entity(entityType.ClrType)
-                        .Property(nameof(BaseEntity<Guid>.UpdatedBy))
+                        .Property(nameof(IEntity.UpdatedBy))
                         .HasMaxLength(450);
 
                     modelBuilder.Entity(entityType.ClrType)
-                        .Property(nameof(BaseEntity<Guid>.DeletedBy))
+                        .Property(nameof(IEntity.DeletedBy))
                         .HasMaxLength(450);
 
                     modelBuilder.Entity(entityType.ClrType)
-                        .Property(nameof(BaseEntity<Guid>.LastModifiedBy))
+                        .Property(nameof(IEntity.LastModifiedBy))
                         .HasMaxLength(450);
 
-                    // Add indexes for common BaseEntity properties
+                    // Add indexes
                     modelBuilder.Entity(entityType.ClrType)
-                        .HasIndex(nameof(BaseEntity<Guid>.CreatedAt))
+                        .HasIndex(nameof(IEntity.CreatedAt))
                         .HasDatabaseName($"IX_{entityType.GetTableName()}_CreatedAt");
 
                     modelBuilder.Entity(entityType.ClrType)
-                        .HasIndex(nameof(BaseEntity<Guid>.IsDeleted))
+                        .HasIndex(nameof(IEntity.IsDeleted))
                         .HasDatabaseName($"IX_{entityType.GetTableName()}_IsDeleted");
                 }
             }
@@ -113,31 +113,14 @@ namespace Courses.Infrastructure.Data
 
                 if (entry.State == EntityState.Added)
                 {
-                    if (entity is BaseEntity<Guid> guidEntity)
-                    {
-                        guidEntity.CreatedAt = DateTime.UtcNow;
-                        guidEntity.UpdatedAt = DateTime.UtcNow;
-                        guidEntity.LastModifiedOn = DateTime.UtcNow;
-                    }
-                    else if (entity is BaseEntity<string> stringEntity)
-                    {
-                        stringEntity.CreatedAt = DateTime.UtcNow;
-                        stringEntity.UpdatedAt = DateTime.UtcNow;
-                        stringEntity.LastModifiedOn = DateTime.UtcNow;
-                    }
+                    entity.CreatedAt = DateTime.UtcNow;
+                    entity.UpdatedAt = DateTime.UtcNow;
+                    entity.LastModifiedOn = DateTime.UtcNow;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    if (entity is BaseEntity<Guid> guidEntity)
-                    {
-                        guidEntity.UpdatedAt = DateTime.UtcNow;
-                        guidEntity.LastModifiedOn = DateTime.UtcNow;
-                    }
-                    else if (entity is BaseEntity<string> stringEntity)
-                    {
-                        stringEntity.UpdatedAt = DateTime.UtcNow;
-                        stringEntity.LastModifiedOn = DateTime.UtcNow;
-                    }
+                    entity.UpdatedAt = DateTime.UtcNow;
+                    entity.LastModifiedOn = DateTime.UtcNow;
                 }
             }
         }
