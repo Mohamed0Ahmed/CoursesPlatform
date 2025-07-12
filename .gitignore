@@ -341,6 +341,10 @@ out/
 # Local configuration files
 local.settings.json
 
+# Project documentation and description files
+project-description.*
+.cursor/rules/project-description.mdc
+
 # RIA/Silverlight projects
 Generated_Code/
 
