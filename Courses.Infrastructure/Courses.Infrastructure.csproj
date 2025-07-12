@@ -11,4 +11,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.18" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Configuration\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Courses.Domain\Courses.Domain.csproj" />
+    <ProjectReference Include="..\Courses.Shared\Courses.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
