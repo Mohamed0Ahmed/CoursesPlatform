@@ -1,5 +1,3 @@
-using Courses.Shared.Base;
-using Courses.Domain.Identity;
 
 namespace Courses.Domain.Models
 {

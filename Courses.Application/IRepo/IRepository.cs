@@ -1,6 +1,4 @@
-﻿using Courses.Shared.Base;
-using System.Linq.Expressions;
-
+﻿
 namespace Courses.Application.IRepo
 {
     public interface IRepository<T, TKey> where T : BaseEntity<TKey> where TKey : IEquatable<TKey>

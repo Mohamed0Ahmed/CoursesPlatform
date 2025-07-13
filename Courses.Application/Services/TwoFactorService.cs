@@ -1,7 +1,3 @@
-using Courses.Application.Abstraction;
-using Courses.Domain.Identity;
-using Microsoft.Extensions.Caching.Memory;
-using System.Security.Cryptography;
 
 namespace Courses.Application.Services
 {

@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Courses.Domain.Models;
-using Courses.Domain.Identity;
-using Courses.Shared.Base;
-
+﻿
 namespace Courses.Infrastructure.Data
 {
     public class AppDbContext : IdentityDbContext<ApplicationUser>

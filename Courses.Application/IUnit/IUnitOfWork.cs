@@ -1,9 +1,4 @@
-﻿using Courses.Application.IRepo;
-using Courses.Shared.Base;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿
 
 namespace Courses.Application.IUnit
 {

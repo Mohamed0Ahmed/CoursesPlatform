@@ -1,4 +1,4 @@
-namespace Courses.Shared.Base
+namespace Courses.Shared.BaseModels
 {
     public interface IEntity
     {

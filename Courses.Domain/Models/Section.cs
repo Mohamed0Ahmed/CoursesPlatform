@@ -1,4 +1,4 @@
-﻿using Courses.Shared.Base;
+﻿ 
 
 namespace Courses.Domain.Models
 {

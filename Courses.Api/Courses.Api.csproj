@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Courses.Application\Courses.Application.csproj" />
     <ProjectReference Include="..\Courses.Infrastructure\Courses.Infrastructure.csproj" />
+    <ProjectReference Include="..\Courses.Shared\Courses.Shared.csproj" />
   </ItemGroup>
 
 </Project>

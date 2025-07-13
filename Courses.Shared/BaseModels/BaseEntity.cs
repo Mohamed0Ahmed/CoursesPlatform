@@ -1,4 +1,4 @@
-﻿namespace Courses.Shared.Base
+﻿namespace Courses.Shared.BaseModels
 {     public class BaseEntity<TKey> : IEntity where TKey : IEquatable<TKey>
     {
         public TKey Id { get; set; } = default!;

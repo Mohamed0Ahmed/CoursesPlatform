@@ -1,7 +1,5 @@
-using System.Net.Mail;
 using System.Net;
-using Microsoft.Extensions.Configuration;
-using Courses.Application.Abstraction;
+using System.Net.Mail;
 
 namespace Courses.Application.Services
 {

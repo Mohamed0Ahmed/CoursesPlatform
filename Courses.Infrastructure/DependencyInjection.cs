@@ -1,10 +1,4 @@
-﻿using Courses.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-
+﻿
 namespace Courses.Infrastructure
 {
     public static class DependencyInjection

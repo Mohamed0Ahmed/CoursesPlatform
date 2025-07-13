@@ -1,5 +1,4 @@
-using Courses.Domain.Models;
-using Microsoft.AspNetCore.Identity;
+using Courses.Shared.Enum;
 
 namespace Courses.Domain.Identity
 {
@@ -18,12 +17,5 @@ namespace Courses.Domain.Identity
 
         // Full Name property
         public string FullName => $"{FirstName} {LastName}".Trim();
-    }
-
-    public enum UserType
-    {
-        Student = 1,
-        Instructor = 2,
-        Admin = 3
     }
 }

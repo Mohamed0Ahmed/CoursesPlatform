@@ -1,6 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-using Courses.Application.Services;
-using Courses.Application.Abstraction;
+
 
 namespace Courses.Application
 {

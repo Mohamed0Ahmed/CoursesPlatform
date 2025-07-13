@@ -1,13 +1,4 @@
-using Courses.Domain.Identity;
-using Courses.Infrastructure;
-using Courses.Infrastructure.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
-using System.Text;
-using Courses.Application;
-using Courses.Api.Services;
+using Courses.Api.Filters;
 
 namespace Courses.Api
 {
@@ -103,11 +94,17 @@ namespace Courses.Api
                 });
             });
 
-            // Add Controllers
-            builder.Services.AddControllers();
+            // Add Controllers with Global Filters
+            builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add<ValidationFilter>();
+            });
 
             // Add Swagger
             builder.Services.AddEndpointsApiExplorer().AddSwaggerGen();
+
+            // Add Logging
+            builder.Services.AddLogging();
 
             #endregion
 
@@ -136,6 +133,9 @@ namespace Courses.Api
             }
 
             app.UseHttpsRedirection();
+
+            // Add Exception Handler Middleware
+            app.UseExceptionHandlerMiddleware();
 
             // Add CORS
             app.UseCors("AllowAll");
