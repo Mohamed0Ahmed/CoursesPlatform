@@ -16,24 +16,24 @@ namespace Courses.Infrastructure.Data.Configuration
                 .HasDefaultValueSql("NEWID()");
 
             builder.Property(e => e.StudentId)
-                .IsRequired()
-                .HasMaxLength(450);
+                .IsRequired();
 
             builder.Property(e => e.CourseId)
                 .IsRequired();
 
             builder.Property(e => e.EnrollmentDate)
-                .IsRequired();
+                .IsRequired()
+                .HasDefaultValueSql("GETUTCDATE()");
 
             builder.Property(e => e.IsCompleted)
                 .HasDefaultValue(false);
 
-            builder.Property(e => e.CompletionDate)
-                .IsRequired(false);
-
             builder.Property(e => e.Grade)
-                .HasColumnType("decimal(5,2)")
-                .IsRequired(false);
+                .HasPrecision(5, 2);
+
+            builder.Property(e => e.Progress)
+                .HasPrecision(5, 2)
+                .HasDefaultValue(0m);
 
             // Indexes
             builder.HasIndex(e => e.StudentId)
@@ -42,26 +42,27 @@ namespace Courses.Infrastructure.Data.Configuration
             builder.HasIndex(e => e.CourseId)
                 .HasDatabaseName("IX_Enrollments_CourseId");
 
-            builder.HasIndex(e => new { e.StudentId, e.CourseId })
-                .IsUnique()
-                .HasDatabaseName("IX_Enrollments_Student_Course");
-
             builder.HasIndex(e => e.EnrollmentDate)
                 .HasDatabaseName("IX_Enrollments_EnrollmentDate");
 
             builder.HasIndex(e => e.IsCompleted)
                 .HasDatabaseName("IX_Enrollments_IsCompleted");
 
-            // Foreign Key Relationships
-            builder.HasOne<Course>()
-                .WithMany()
-                .HasForeignKey(e => e.CourseId)
-                .OnDelete(DeleteBehavior.Cascade); // نحذف Enrollment إذا حذف Course
+            // Composite Index for unique enrollment
+            builder.HasIndex(e => new { e.StudentId, e.CourseId })
+                .IsUnique()
+                .HasDatabaseName("IX_Enrollments_StudentId_CourseId");
 
-            builder.HasOne<Student>()
-                .WithMany()
+            // Foreign Key Relationships
+            builder.HasOne(e => e.Student)
+                .WithMany(s => s.Enrollments)
                 .HasForeignKey(e => e.StudentId)
-                .OnDelete(DeleteBehavior.Cascade); // نحذف Enrollment إذا حذف Student
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(e => e.Course)
+                .WithMany(c => c.Enrollments)
+                .HasForeignKey(e => e.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -30,8 +30,8 @@ namespace Courses.Infrastructure.Data.Configuration
                 .HasDatabaseName("IX_Quizzes_CourseId");
 
             // Foreign Key Relationship
-            builder.HasOne<Course>()
-                .WithMany()
+            builder.HasOne(q => q.Course)
+                .WithMany(c => c.Quizzes)
                 .HasForeignKey(q => q.CourseId)
                 .OnDelete(DeleteBehavior.Cascade); // نحذف Quizzes إذا حذف Course
         }

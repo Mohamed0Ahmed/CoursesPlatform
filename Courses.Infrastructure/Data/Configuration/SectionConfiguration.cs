@@ -34,8 +34,8 @@ namespace Courses.Infrastructure.Data.Configuration
                 .HasDatabaseName("IX_Sections_Course_Order");
 
             // Foreign Key Relationship
-            builder.HasOne<Course>()
-                .WithMany()
+            builder.HasOne(s => s.Course)
+                .WithMany(c => c.Sections)
                 .HasForeignKey(s => s.CourseId)
                 .OnDelete(DeleteBehavior.Cascade); // نحذف Sections إذا حذف Course
         }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Courses.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +30,12 @@ namespace Courses.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserType = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -48,83 +54,6 @@ namespace Courses.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Instructors",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    UpdatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    DeletedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Instructors", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Notes",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SectionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Order = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    UpdatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    DeletedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Notes", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Students",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    UpdatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    DeletedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Students", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -259,16 +188,87 @@ namespace Courses.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Instructors",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    Bio = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    Specialization = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Rating = table.Column<decimal>(type: "decimal(3,2)", precision: 3, scale: 2, nullable: false, defaultValue: 0m),
+                    YearsOfExperience = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    Website = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    LinkedIn = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    DeletedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Instructors", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Instructors_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Students",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    StudentNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    EnrollmentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Bio = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    ProfilePictureUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    DeletedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Students", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Students_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Courses",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    InstructorId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    InstructorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, defaultValue: 0m),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    VideoUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Level = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, defaultValue: "Beginner"),
+                    Language = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, defaultValue: "Arabic"),
+                    EstimatedHours = table.Column<int>(type: "int", nullable: true, defaultValue: 0),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
@@ -291,16 +291,49 @@ namespace Courses.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Notes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SectionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Order = table.Column<int>(type: "int", nullable: false),
+                    StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    DeletedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notes_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Enrollments",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    StudentId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EnrollmentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EnrollmentDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     IsCompleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     CompletionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Grade = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
+                    Grade = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true),
+                    Progress = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true, defaultValue: 0m),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
@@ -394,6 +427,7 @@ namespace Courses.Infrastructure.Migrations
                     EnrollmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IssueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CertificateURL = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
@@ -413,6 +447,11 @@ namespace Courses.Infrastructure.Migrations
                         principalTable: "Enrollments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Certificates_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -554,14 +593,14 @@ namespace Courses.Infrastructure.Migrations
                 column: "IssueDate");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Certificates_StudentId",
+                table: "Certificates",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Courses_CreatedAt",
                 table: "Courses",
                 column: "CreatedAt");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Courses_CreatedDate",
-                table: "Courses",
-                column: "CreatedDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Courses_InstructorId",
@@ -577,6 +616,21 @@ namespace Courses.Infrastructure.Migrations
                 name: "IX_Courses_IsDeleted",
                 table: "Courses",
                 column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Courses_Level",
+                table: "Courses",
+                column: "Level");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Courses_Price",
+                table: "Courses",
+                column: "Price");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Courses_Title",
+                table: "Courses",
+                column: "Title");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Enrollments_CourseId",
@@ -604,15 +658,15 @@ namespace Courses.Infrastructure.Migrations
                 column: "IsDeleted");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Enrollments_Student_Course",
-                table: "Enrollments",
-                columns: new[] { "StudentId", "CourseId" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Enrollments_StudentId",
                 table: "Enrollments",
                 column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Enrollments_StudentId_CourseId",
+                table: "Enrollments",
+                columns: new[] { "StudentId", "CourseId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Instructors_CreatedAt",
@@ -620,20 +674,25 @@ namespace Courses.Infrastructure.Migrations
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Instructors_CreatedDate",
-                table: "Instructors",
-                column: "CreatedDate");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Instructors_Email",
-                table: "Instructors",
-                column: "Email",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Instructors_IsDeleted",
                 table: "Instructors",
                 column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Instructors_Rating",
+                table: "Instructors",
+                column: "Rating");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Instructors_Specialization",
+                table: "Instructors",
+                column: "Specialization");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Instructors_UserId",
+                table: "Instructors",
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notes_CreatedAt",
@@ -649,6 +708,11 @@ namespace Courses.Infrastructure.Migrations
                 name: "IX_Notes_SectionId_Order",
                 table: "Notes",
                 columns: new[] { "SectionId", "Order" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notes_StudentId",
+                table: "Notes",
+                column: "StudentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Questions_CreatedAt",
@@ -712,20 +776,26 @@ namespace Courses.Infrastructure.Migrations
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Students_CreatedDate",
+                name: "IX_Students_EnrollmentDate",
                 table: "Students",
-                column: "CreatedDate");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Students_Email",
-                table: "Students",
-                column: "Email",
-                unique: true);
+                column: "EnrollmentDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_IsDeleted",
                 table: "Students",
                 column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Students_StudentNumber",
+                table: "Students",
+                column: "StudentNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Students_UserId",
+                table: "Students",
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Videos_CreatedAt",
@@ -783,9 +853,6 @@ namespace Courses.Infrastructure.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Enrollments");
 
             migrationBuilder.DropTable(
@@ -799,6 +866,9 @@ namespace Courses.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Instructors");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

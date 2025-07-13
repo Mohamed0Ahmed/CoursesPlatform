@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Courses.Domain.Models;
+using Courses.Domain.Identity;
 using Courses.Shared.Base;
 
 namespace Courses.Infrastructure.Data
 {
-    public class AppDbContext : IdentityDbContext<IdentityUser>
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -30,10 +31,7 @@ namespace Courses.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
 
             // Apply all entity configurations
-
-            base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-
 
             // Configure BaseEntity properties for all entities
             ConfigureBaseEntityProperties(modelBuilder);

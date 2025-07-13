@@ -24,17 +24,31 @@ namespace Courses.Infrastructure.Data.Configuration
                 .HasMaxLength(2000);
 
             builder.Property(c => c.InstructorId)
-                .IsRequired()
-                .HasMaxLength(450);
+                .IsRequired();
 
             builder.Property(c => c.IsActive)
                 .HasDefaultValue(true);
 
-            builder.Property(c => c.CreatedDate)
-                .IsRequired();
+            builder.Property(c => c.Price)
+                .HasPrecision(18, 2)
+                .HasDefaultValue(0);
 
-            builder.Property(c => c.UpdatedDate)
-                .IsRequired();
+            builder.Property(c => c.ImageUrl)
+                .HasMaxLength(500);
+
+            builder.Property(c => c.VideoUrl)
+                .HasMaxLength(500);
+
+            builder.Property(c => c.Level)
+                .HasMaxLength(50)
+                .HasDefaultValue("Beginner");
+
+            builder.Property(c => c.Language)
+                .HasMaxLength(50)
+                .HasDefaultValue("Arabic");
+
+            builder.Property(c => c.EstimatedHours)
+                .HasDefaultValue(0);
 
             // Indexes
             builder.HasIndex(c => c.InstructorId)
@@ -43,12 +57,18 @@ namespace Courses.Infrastructure.Data.Configuration
             builder.HasIndex(c => c.IsActive)
                 .HasDatabaseName("IX_Courses_IsActive");
 
-            builder.HasIndex(c => c.CreatedDate)
-                .HasDatabaseName("IX_Courses_CreatedDate");
+            builder.HasIndex(c => c.Title)
+                .HasDatabaseName("IX_Courses_Title");
 
-            // Foreign Key Relationship
-            builder.HasOne<Instructor>()
-                .WithMany()
+            builder.HasIndex(c => c.Level)
+                .HasDatabaseName("IX_Courses_Level");
+
+            builder.HasIndex(c => c.Price)
+                .HasDatabaseName("IX_Courses_Price");
+
+            // Foreign Key Relationship with Instructor
+            builder.HasOne(c => c.Instructor)
+                .WithMany(i => i.Courses)
                 .HasForeignKey(c => c.InstructorId)
                 .OnDelete(DeleteBehavior.Restrict); // لا نحذف Instructor إذا كان له Courses
         }

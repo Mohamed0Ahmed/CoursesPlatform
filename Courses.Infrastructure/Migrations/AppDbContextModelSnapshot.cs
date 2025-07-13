@@ -22,6 +22,91 @@ namespace Courses.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Courses.Domain.Identity.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("Courses.Domain.Models.Answer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -149,6 +234,9 @@ namespace Courses.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<Guid?>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -174,6 +262,8 @@ namespace Courses.Infrastructure.Migrations
                     b.HasIndex("IssueDate")
                         .HasDatabaseName("IX_Certificates_IssueDate");
 
+                    b.HasIndex("StudentId");
+
                     b.ToTable("Certificates", (string)null);
                 });
 
@@ -194,9 +284,6 @@ namespace Courses.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
@@ -209,10 +296,17 @@ namespace Courses.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<string>("InstructorId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int?>("EstimatedHours")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("InstructorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -224,6 +318,13 @@ namespace Courses.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Arabic");
+
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
@@ -232,6 +333,19 @@ namespace Courses.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Beginner");
+
+                    b.Property<decimal>("Price")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -248,16 +362,14 @@ namespace Courses.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("IX_Courses_CreatedAt");
-
-                    b.HasIndex("CreatedDate")
-                        .HasDatabaseName("IX_Courses_CreatedDate");
 
                     b.HasIndex("InstructorId")
                         .HasDatabaseName("IX_Courses_InstructorId");
@@ -267,6 +379,15 @@ namespace Courses.Infrastructure.Migrations
 
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_Courses_IsDeleted");
+
+                    b.HasIndex("Level")
+                        .HasDatabaseName("IX_Courses_Level");
+
+                    b.HasIndex("Price")
+                        .HasDatabaseName("IX_Courses_Price");
+
+                    b.HasIndex("Title")
+                        .HasDatabaseName("IX_Courses_Title");
 
                     b.ToTable("Courses", (string)null);
                 });
@@ -302,9 +423,12 @@ namespace Courses.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("EnrollmentDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<decimal?>("Grade")
+                        .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
 
                     b.Property<bool>("IsCompleted")
@@ -326,10 +450,14 @@ namespace Courses.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<decimal?>("Progress")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -363,21 +491,22 @@ namespace Courses.Infrastructure.Migrations
 
                     b.HasIndex("StudentId", "CourseId")
                         .IsUnique()
-                        .HasDatabaseName("IX_Enrollments_Student_Course");
+                        .HasDatabaseName("IX_Enrollments_StudentId_CourseId");
 
                     b.ToTable("Enrollments", (string)null);
                 });
 
             modelBuilder.Entity("Courses.Domain.Models.Instructor", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Bio")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -389,20 +518,12 @@ namespace Courses.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -418,15 +539,21 @@ namespace Courses.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("LinkedIn")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Rating")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(3, 2)
+                        .HasColumnType("decimal(3,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("Specialization")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -438,23 +565,38 @@ namespace Courses.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("YearsOfExperience")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("IX_Instructors_CreatedAt");
 
-                    b.HasIndex("CreatedDate")
-                        .HasDatabaseName("IX_Instructors_CreatedDate");
-
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Instructors_Email");
-
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_Instructors_IsDeleted");
+
+                    b.HasIndex("Rating")
+                        .HasDatabaseName("IX_Instructors_Rating");
+
+                    b.HasIndex("Specialization")
+                        .HasDatabaseName("IX_Instructors_Specialization");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Instructors_UserId");
 
                     b.ToTable("Instructors", (string)null);
                 });
@@ -509,6 +651,9 @@ namespace Courses.Infrastructure.Migrations
                     b.Property<Guid>("SectionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -534,6 +679,8 @@ namespace Courses.Infrastructure.Migrations
 
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_Notes_IsDeleted");
+
+                    b.HasIndex("StudentId");
 
                     b.HasIndex("SectionId", "Order");
 
@@ -770,9 +917,22 @@ namespace Courses.Infrastructure.Migrations
 
             modelBuilder.Entity("Courses.Domain.Models.Student", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -784,7 +944,7 @@ namespace Courses.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -794,10 +954,8 @@ namespace Courses.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<DateTime>("EnrollmentDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -813,15 +971,14 @@ namespace Courses.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
+                    b.Property<string>("ProfilePictureUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("StudentNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -833,23 +990,29 @@ namespace Courses.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("IX_Students_CreatedAt");
 
-                    b.HasIndex("CreatedDate")
-                        .HasDatabaseName("IX_Students_CreatedDate");
-
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Students_Email");
+                    b.HasIndex("EnrollmentDate")
+                        .HasDatabaseName("IX_Students_EnrollmentDate");
 
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_Students_IsDeleted");
+
+                    b.HasIndex("StudentNumber")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Students_StudentNumber");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Students_UserId");
 
                     b.ToTable("Students", (string)null);
                 });
@@ -984,71 +1147,6 @@ namespace Courses.Infrastructure.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -1146,30 +1244,58 @@ namespace Courses.Infrastructure.Migrations
                         .HasForeignKey("EnrollmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Courses.Domain.Models.Student", null)
+                        .WithMany("Certificates")
+                        .HasForeignKey("StudentId");
                 });
 
             modelBuilder.Entity("Courses.Domain.Models.Course", b =>
                 {
-                    b.HasOne("Courses.Domain.Models.Instructor", null)
-                        .WithMany()
+                    b.HasOne("Courses.Domain.Models.Instructor", "Instructor")
+                        .WithMany("Courses")
                         .HasForeignKey("InstructorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Instructor");
                 });
 
             modelBuilder.Entity("Courses.Domain.Models.Enrollment", b =>
                 {
-                    b.HasOne("Courses.Domain.Models.Course", null)
-                        .WithMany()
+                    b.HasOne("Courses.Domain.Models.Course", "Course")
+                        .WithMany("Enrollments")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Courses.Domain.Models.Student", null)
-                        .WithMany()
+                    b.HasOne("Courses.Domain.Models.Student", "Student")
+                        .WithMany("Enrollments")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Courses.Domain.Models.Instructor", b =>
+                {
+                    b.HasOne("Courses.Domain.Identity.ApplicationUser", "User")
+                        .WithOne("Instructor")
+                        .HasForeignKey("Courses.Domain.Models.Instructor", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Courses.Domain.Models.Note", b =>
+                {
+                    b.HasOne("Courses.Domain.Models.Student", null)
+                        .WithMany("Notes")
+                        .HasForeignKey("StudentId");
                 });
 
             modelBuilder.Entity("Courses.Domain.Models.Question", b =>
@@ -1183,20 +1309,35 @@ namespace Courses.Infrastructure.Migrations
 
             modelBuilder.Entity("Courses.Domain.Models.Quiz", b =>
                 {
-                    b.HasOne("Courses.Domain.Models.Course", null)
-                        .WithMany()
+                    b.HasOne("Courses.Domain.Models.Course", "Course")
+                        .WithMany("Quizzes")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Courses.Domain.Models.Section", b =>
                 {
-                    b.HasOne("Courses.Domain.Models.Course", null)
-                        .WithMany()
+                    b.HasOne("Courses.Domain.Models.Course", "Course")
+                        .WithMany("Sections")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("Courses.Domain.Models.Student", b =>
+                {
+                    b.HasOne("Courses.Domain.Identity.ApplicationUser", "User")
+                        .WithOne("Student")
+                        .HasForeignKey("Courses.Domain.Models.Student", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1210,7 +1351,7 @@ namespace Courses.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("Courses.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1219,7 +1360,7 @@ namespace Courses.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("Courses.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1234,7 +1375,7 @@ namespace Courses.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("Courses.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1243,11 +1384,41 @@ namespace Courses.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("Courses.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Courses.Domain.Identity.ApplicationUser", b =>
+                {
+                    b.Navigation("Instructor");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Courses.Domain.Models.Course", b =>
+                {
+                    b.Navigation("Enrollments");
+
+                    b.Navigation("Quizzes");
+
+                    b.Navigation("Sections");
+                });
+
+            modelBuilder.Entity("Courses.Domain.Models.Instructor", b =>
+                {
+                    b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("Courses.Domain.Models.Student", b =>
+                {
+                    b.Navigation("Certificates");
+
+                    b.Navigation("Enrollments");
+
+                    b.Navigation("Notes");
                 });
 #pragma warning restore 612, 618
         }
