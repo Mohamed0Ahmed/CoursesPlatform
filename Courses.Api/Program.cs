@@ -1,7 +1,13 @@
+using Courses.Domain.Identity;
 using Courses.Infrastructure;
 using Courses.Infrastructure.Data;
-using Courses.Domain.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+using System.Text;
+using Courses.Application;
+using Courses.Api.Services;
 
 namespace Courses.Api
 {
@@ -11,10 +17,51 @@ namespace Courses.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+
+            //var key = RandomNumberGenerator.GetBytes(32); // 256-bit
+            //var base64Key = Convert.ToBase64String(key);
+            //Console.WriteLine(base64Key);
+
+
+
             #region Configure Services
 
             // Add Infrastructure Services (DbContext)
             builder.Services.AddInfrastructure(builder.Configuration);
+
+            // Add Application Services
+            builder.Services.AddApplicationServices();
+
+            // Add JWT Service
+            builder.Services.AddScoped<IJwtService, JwtService>();
+
+            // Configure JWT Authentication
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+            var secretKey = jwtSettings["SecretKey"];
+            var issuer = jwtSettings["Issuer"];
+            var audience = jwtSettings["Audience"];
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+                    ValidateIssuer = true,
+                    ValidIssuer = issuer,
+                    ValidateAudience = true,
+                    ValidAudience = audience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
             // Add Identity Services
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -64,7 +111,11 @@ namespace Courses.Api
 
             #endregion
 
+
+
             var app = builder.Build();
+
+
 
             #region Apply Migrations
 
@@ -72,6 +123,8 @@ namespace Courses.Api
             app.UseInfrastructure();
 
             #endregion
+
+
 
             #region Configure Middleware
 
