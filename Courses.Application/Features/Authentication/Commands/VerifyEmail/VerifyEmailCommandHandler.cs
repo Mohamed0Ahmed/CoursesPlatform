@@ -1,6 +1,8 @@
 
 namespace Courses.Application.Features.Authentication.Commands.VerifyEmail;
 
+public record VerifyEmailCommand(VerifyCodeRequestDto Dto, UserType UserType) : IRequest<VerifyEmailResponseDto>;
+
 public class VerifyEmailCommandHandler : IRequestHandler<VerifyEmailCommand, VerifyEmailResponseDto>
 {
     private readonly UserManager<ApplicationUser> _userManager;

@@ -34,6 +34,12 @@ global using Courses.Shared.Enum;
 global using Courses.Shared.BaseModels;
 
 // =======================
+// Application Interfaces
+// =======================
+global using Courses.Application.IRepo;
+global using Courses.Application.IUnit;
+
+// =======================
 // Infrastructure Data
 // =======================
 global using Courses.Infrastructure.Data;

@@ -1,4 +1,8 @@
-﻿
+﻿using Courses.Application.IRepo;
+using Courses.Application.IUnit;
+using Courses.Infrastructure.Data.Repositories;
+using Courses.Infrastructure.Data.UnitOfWorks;
+
 namespace Courses.Infrastructure
 {
     public static class DependencyInjection
@@ -8,6 +12,12 @@ namespace Courses.Infrastructure
             // Add DbContext
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("AppContext")));
+
+            // Register UnitOfWork
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Register Generic Repository
+            services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
             return services;
         }

@@ -15,6 +15,7 @@ global using Microsoft.AspNetCore.Identity;
 // Domain Models & Enums
 // =======================
 global using Courses.Domain.Identity;
+global using Courses.Domain.Models;
 global using Courses.Shared.Enum;
 
 // =======================
@@ -26,6 +27,7 @@ global using Courses.Shared.BaseModels;
 // Application Interfaces & Repositories
 // =======================
 global using Courses.Application.IRepo;
+global using Courses.Application.IUnit;
 
 // =======================
 // Abstractions

@@ -1,16 +1,21 @@
+namespace Courses.Application.Features.Authentication.Commands.Register.Admins;
 
-public class StudentRegisterCommandHandler : IRequestHandler<StudentRegisterCommand, RegisterResponseDto>
+public record AdminRegisterCommand(AdminRegisterRequestDto Dto) : IRequest<RegisterResponseDto>;
+
+//*********
+
+public class AdminRegisterCommandHandler : IRequestHandler<AdminRegisterCommand, RegisterResponseDto>
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailService _emailService;
     private readonly ITwoFactorService _twoFactorService;
-    private readonly ILogger<StudentRegisterCommandHandler> _logger;
+    private readonly ILogger<AdminRegisterCommandHandler> _logger;
 
-    public StudentRegisterCommandHandler(
+    public AdminRegisterCommandHandler(
         UserManager<ApplicationUser> userManager,
         IEmailService emailService,
         ITwoFactorService twoFactorService,
-        ILogger<StudentRegisterCommandHandler> logger)
+        ILogger<AdminRegisterCommandHandler> logger)
     {
         _userManager = userManager;
         _emailService = emailService;
@@ -18,9 +23,9 @@ public class StudentRegisterCommandHandler : IRequestHandler<StudentRegisterComm
         _logger = logger;
     }
 
-    public async Task<RegisterResponseDto> Handle(StudentRegisterCommand request, CancellationToken cancellationToken)
+    public async Task<RegisterResponseDto> Handle(AdminRegisterCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Registration attempt for email: {Email}, type: {UserType}", request.Dto.Email, UserType.Student);
+        _logger.LogInformation("Registration attempt for email: {Email}, type: {UserType}", request.Dto.Email, UserType.Admin);
 
         var existingUser = await _userManager.FindByEmailAsync(request.Dto.Email);
         if (existingUser != null)
@@ -35,7 +40,7 @@ public class StudentRegisterCommandHandler : IRequestHandler<StudentRegisterComm
             Email = request.Dto.Email,
             FirstName = request.Dto.FirstName,
             LastName = request.Dto.LastName,
-            UserType = UserType.Student,
+            UserType = UserType.Admin,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsActive = true
@@ -47,6 +52,15 @@ public class StudentRegisterCommandHandler : IRequestHandler<StudentRegisterComm
             var errors = result.Errors.Select(e => e.Description).ToList();
             _logger.LogWarning("Registration failed for email {Email}: {Errors}", request.Dto.Email, string.Join(", ", errors));
             throw new InvalidOperationException(string.Join(", ", errors));
+        }
+
+        // Add user to Admin role
+        var roleResult = await _userManager.AddToRoleAsync(user, "Admin");
+        if (!roleResult.Succeeded)
+        {
+            var errors = roleResult.Errors.Select(e => e.Description).ToList();
+            _logger.LogWarning("Failed to add user {Email} to Admin role: {Errors}", request.Dto.Email, string.Join(", ", errors));
+            throw new InvalidOperationException($"Failed to assign role: {string.Join(", ", errors)}");
         }
 
         await _emailService.SendWelcomeEmailAsync(user.Email!, user.FullName);

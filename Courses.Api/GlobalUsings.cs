@@ -53,9 +53,9 @@ global using Courses.Application;
 // =======================
 // Application Features - Authentication Commands
 // =======================
-global using Courses.Application.Features.Authentication.Commands.Register.Admin;
-global using Courses.Application.Features.Authentication.Commands.Register.Student;
-global using Courses.Application.Features.Authentication.Commands.Register.Instructor;
+global using Courses.Application.Features.Authentication.Commands.Register.Admins;
+global using Courses.Application.Features.Authentication.Commands.Register.Students;
+global using Courses.Application.Features.Authentication.Commands.Register.Instructors;
 global using Courses.Application.Features.Authentication.Commands.ResendVerificationCode;
 global using Courses.Application.Features.Authentication.Commands.VerifyEmail;
 

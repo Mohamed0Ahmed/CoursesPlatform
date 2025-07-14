@@ -1,5 +1,10 @@
 namespace Courses.Application.Features.Authentication.Queries.Login;
 
+public record LoginQuery(LoginRequestDto Dto, UserType UserType) : IRequest<LoginResponseDto>;
+
+//**************************
+
+
 public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResponseDto>
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -41,6 +46,12 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResponseDto>
         {
             _logger.LogWarning("Login failed: Invalid password for email {Email}", request.Dto.Email);
             throw new UnauthorizedAccessException("Invalid email or password");
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            _logger.LogWarning("Login failed: Email not confirmed for email {Email}", request.Dto.Email);
+            throw new UnauthorizedAccessException("Email is not confirmed. Please verify your email before logging in.");
         }
 
         if (!user.IsActive)
