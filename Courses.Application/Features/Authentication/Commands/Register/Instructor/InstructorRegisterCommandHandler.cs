@@ -1,25 +1,17 @@
-using Courses.Application.Abstraction.Email;
-using Courses.Application.Abstraction.TwoFactor;
-using Courses.Shared.DTOs.AuthDtos;
-using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
+namespace Courses.Application.Features.Authentication.Commands.Register.Instructor;
 
-namespace Courses.Application.Features.Authentication.Commands.Register;
-
-public class AdminRegisterCommandHandler : IRequestHandler<AdminRegisterCommand, RegisterResponseDto>
+public class InstructorRegisterCommandHandler : IRequestHandler<InstructorRegisterCommand, RegisterResponseDto>
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailService _emailService;
     private readonly ITwoFactorService _twoFactorService;
-    private readonly ILogger<AdminRegisterCommandHandler> _logger;
+    private readonly ILogger<InstructorRegisterCommandHandler> _logger;
 
-    public AdminRegisterCommandHandler(
+    public InstructorRegisterCommandHandler(
         UserManager<ApplicationUser> userManager,
         IEmailService emailService,
         ITwoFactorService twoFactorService,
-        ILogger<AdminRegisterCommandHandler> logger)
+        ILogger<InstructorRegisterCommandHandler> logger)
     {
         _userManager = userManager;
         _emailService = emailService;
@@ -27,9 +19,9 @@ public class AdminRegisterCommandHandler : IRequestHandler<AdminRegisterCommand,
         _logger = logger;
     }
 
-    public async Task<RegisterResponseDto> Handle(AdminRegisterCommand request, CancellationToken cancellationToken)
+    public async Task<RegisterResponseDto> Handle(InstructorRegisterCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Registration attempt for email: {Email}, type: {UserType}", request.Dto.Email, UserType.Admin);
+        _logger.LogInformation("Registration attempt for email: {Email}, type: {UserType}", request.Dto.Email, UserType.Instructor);
 
         var existingUser = await _userManager.FindByEmailAsync(request.Dto.Email);
         if (existingUser != null)
@@ -44,7 +36,7 @@ public class AdminRegisterCommandHandler : IRequestHandler<AdminRegisterCommand,
             Email = request.Dto.Email,
             FirstName = request.Dto.FirstName,
             LastName = request.Dto.LastName,
-            UserType = UserType.Admin,
+            UserType = UserType.Instructor,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsActive = true

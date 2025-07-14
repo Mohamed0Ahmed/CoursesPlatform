@@ -1,10 +1,3 @@
-using Courses.Application.Features.Authentication.Commands.Register;
-using Courses.Application.Features.Authentication.Commands.ResendVerificationCode;
-using Courses.Application.Features.Authentication.Commands.VerifyEmail;
-using Courses.Application.Features.Authentication.Queries.GetCurrentUser;
-using Courses.Application.Features.Authentication.Queries.Login;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Courses.Api.Controllers.Auth
 {

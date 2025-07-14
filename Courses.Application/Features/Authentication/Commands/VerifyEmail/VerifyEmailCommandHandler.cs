@@ -1,10 +1,3 @@
-using Courses.Application.Abstraction.Jwt;
-using Courses.Application.Abstraction.TwoFactor;
-using Courses.Shared.DTOs.AuthDtos;
-using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 
 namespace Courses.Application.Features.Authentication.Commands.VerifyEmail;
 

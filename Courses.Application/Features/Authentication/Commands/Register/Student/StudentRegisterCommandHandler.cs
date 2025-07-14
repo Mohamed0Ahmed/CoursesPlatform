@@ -1,25 +1,16 @@
-using Courses.Application.Abstraction.Email;
-using Courses.Application.Abstraction.TwoFactor;
-using Courses.Shared.DTOs.AuthDtos;
-using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 
-namespace Courses.Application.Features.Authentication.Commands.Register;
-
-public class InstructorRegisterCommandHandler : IRequestHandler<InstructorRegisterCommand, RegisterResponseDto>
+public class StudentRegisterCommandHandler : IRequestHandler<StudentRegisterCommand, RegisterResponseDto>
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailService _emailService;
     private readonly ITwoFactorService _twoFactorService;
-    private readonly ILogger<InstructorRegisterCommandHandler> _logger;
+    private readonly ILogger<StudentRegisterCommandHandler> _logger;
 
-    public InstructorRegisterCommandHandler(
+    public StudentRegisterCommandHandler(
         UserManager<ApplicationUser> userManager,
         IEmailService emailService,
         ITwoFactorService twoFactorService,
-        ILogger<InstructorRegisterCommandHandler> logger)
+        ILogger<StudentRegisterCommandHandler> logger)
     {
         _userManager = userManager;
         _emailService = emailService;
@@ -27,9 +18,9 @@ public class InstructorRegisterCommandHandler : IRequestHandler<InstructorRegist
         _logger = logger;
     }
 
-    public async Task<RegisterResponseDto> Handle(InstructorRegisterCommand request, CancellationToken cancellationToken)
+    public async Task<RegisterResponseDto> Handle(StudentRegisterCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Registration attempt for email: {Email}, type: {UserType}", request.Dto.Email, UserType.Instructor);
+        _logger.LogInformation("Registration attempt for email: {Email}, type: {UserType}", request.Dto.Email, UserType.Student);
 
         var existingUser = await _userManager.FindByEmailAsync(request.Dto.Email);
         if (existingUser != null)
@@ -44,7 +35,7 @@ public class InstructorRegisterCommandHandler : IRequestHandler<InstructorRegist
             Email = request.Dto.Email,
             FirstName = request.Dto.FirstName,
             LastName = request.Dto.LastName,
-            UserType = UserType.Instructor,
+            UserType = UserType.Student,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsActive = true
@@ -60,7 +51,7 @@ public class InstructorRegisterCommandHandler : IRequestHandler<InstructorRegist
 
         await _emailService.SendWelcomeEmailAsync(user.Email!, user.FullName);
         await _twoFactorService.SendVerificationCodeAsync(user);
-        
+
         var userInfo = user.Adapt<UserInfoDto>();
 
         return new RegisterResponseDto
@@ -69,4 +60,4 @@ public class InstructorRegisterCommandHandler : IRequestHandler<InstructorRegist
             User = userInfo
         };
     }
-} 
+}

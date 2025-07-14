@@ -1,4 +1,3 @@
-using Courses.Shared.Enum;
 
 namespace Courses.Domain.Identity
 {

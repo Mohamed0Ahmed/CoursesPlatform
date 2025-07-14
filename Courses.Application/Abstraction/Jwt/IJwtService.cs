@@ -1,5 +1,3 @@
-using Courses.Domain.Identity;
-
 namespace Courses.Application.Abstraction.Jwt;
 
 public interface IJwtService

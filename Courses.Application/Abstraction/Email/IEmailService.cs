@@ -1,5 +1,3 @@
-using Courses.Domain.Identity;
-
 namespace Courses.Application.Abstraction.Email;
 
 public interface IEmailService

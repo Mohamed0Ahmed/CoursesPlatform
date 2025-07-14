@@ -1,8 +1,3 @@
-using Courses.Application.Abstraction.TwoFactor;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-
 namespace Courses.Application.Features.Authentication.Commands.ResendVerificationCode;
 
 public class ResendVerificationCodeCommandHandler : IRequestHandler<ResendVerificationCodeCommand, bool>

@@ -1,4 +1,3 @@
-using Courses.Domain.Identity;
 
 namespace Courses.Application.Abstraction.TwoFactor;
 

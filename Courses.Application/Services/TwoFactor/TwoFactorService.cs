@@ -1,9 +1,3 @@
-using Courses.Application.Abstraction.TwoFactor;
-using Courses.Application.Abstraction.Email;
-using Courses.Domain.Identity;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Identity;
-
 namespace Courses.Application.Services.TwoFactor;
 
 public class TwoFactorService : ITwoFactorService
