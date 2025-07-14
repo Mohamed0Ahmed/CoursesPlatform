@@ -1,354 +1,50 @@
 # Clean Architecture Guide
 
-## 🏗️ **Clean Architecture Structure**
+This document outlines the Clean Architecture structure of the Courses Platform API, focusing on how we apply architectural principles for a scalable, maintainable, and testable system.
 
-### ✅ **الصحيح - Current Structure:**
+## Core Principles
 
-```
-CoursesPlatform/
-├── Courses.Domain/           # Entities, Enums, Domain Logic
-├── Courses.Application/       # Services, Interfaces, Business Logic
-├── Courses.Infrastructure/   # Data Access, External Services
-└── Courses.Api/             # Controllers, API Endpoints
-```
+The architecture is centered around a separation of concerns, dividing the software into layers. The core principle is the **Dependency Rule**, which states that source code dependencies can only point inwards. Nothing in an inner layer can know anything at all about an outer layer.
 
-### ❌ **الخطأ - Previous Structure:**
+## Project Structureد 
 
-```
-CoursesPlatform/
-├── Courses.Domain/
-├── Courses.Application/
-├── Courses.Infrastructure/
-└── Courses.Api/
-    └── Services/            # ❌ Services في API Layer
-```
+The solution is divided into the following projects, representing the layers of the architecture:
 
----
+- `Courses.Domain`: The innermost layer, containing enterprise-wide business logic, models, and entities. It has no dependencies on any other project in the solution.
+- `Courses.Application`: This layer contains the application-specific business logic. It orchestrates the data flow between the Domain and the outer layers.
+- `Courses.Infrastructure`: This layer handles external concerns like databases, email services, and other third-party integrations. It implements the interfaces defined in the Application layer.
+- `Courses.Api`: The outermost layer, which exposes the application's functionality via a RESTful API. It handles HTTP requests, authentication, and presentation logic.
+- `Courses.Shared`: A shared library containing DTOs, Enums, custom exceptions, and other cross-cutting concerns that are used across multiple projects.
 
-## 📋 **Layer Responsibilities**
+## Application Layer (CQRS Implementation)
 
-### 🎯 **Domain Layer (`Courses.Domain`)**
+The `Courses.Application` layer is designed following the **Command Query Responsibility Segregation (CQRS)** pattern. This pattern separates read and update operations for a data store.
 
-```csharp
-// Entities
-public class ApplicationUser : IdentityUser
-{
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public UserType UserType { get; set; }
-}
+### Key Characteristics:
 
-// Enums
-public enum UserType
-{
-    Student = 1,
-    Instructor = 2,
-    Admin = 3
-}
-```
+- **MediatR:** We use the `MediatR` library to implement the CQRS pattern. It acts as a mediator to dispatch Commands and Queries to their respective handlers.
+- **Features Folder:** All application logic is organized into "features". Each feature represents a distinct use case or a group of related use cases (e.g., `Authentication`, `Courses`).
+- **Commands:** Commands represent an intent to change the state of the system (e.g., `StudentRegisterCommand`). They are handled by `CommandHandler` classes and do not return data, or return a simple acknowledgement DTO.
+- **Queries:** Queries are used to read and retrieve data from the system without changing its state (e.g., `LoginQuery`). They are handled by `QueryHandler` classes and return DTOs.
+- **Handlers:** Each command and query has a dedicated handler that encapsulates the business logic for that specific operation. Handlers are responsible for interacting with the domain, using infrastructure services, and returning the result.
 
-### 🔧 **Application Layer (`Courses.Application`)**
+### Benefits of this Approach:
 
-```csharp
-// Services
-public interface IEmailService
-{
-    Task<bool> SendEmailAsync(string to, string subject, string body);
-}
+1.  **Separation of Concerns:** The logic for reading data is clearly separated from the logic for writing data.
+2.  **Scalability:** We can scale the read and write models independently.
+3.  **Single Responsibility Principle:** Each handler has a single, well-defined responsibility.
+4.  **Maintainability:** The code is easier to understand, maintain, and test. New features can be added by simply creating new commands/queries and their handlers without modifying existing code.
 
-public class EmailService : IEmailService
-{
-    // Implementation
-}
+## Data Flow (Example: Student Registration)
 
-// DTOs
-public class LoginRequestDto
-{
-    public string Email { get; set; }
-    public string Password { get; set; }
-}
-```
+1.  **Controller:** `StudentAuthController` receives an HTTP POST request on `/api/auth/student/register`.
+2.  **MediatR:** The controller creates a `StudentRegisterCommand` and sends it using the `IMediator` interface.
+3.  **Command Handler:** `StudentRegisterCommandHandler` receives the command.
+4.  **Business Logic:** The handler executes the registration logic:
+    -   Checks if the user already exists using `UserManager`.
+    -   Creates a new `ApplicationUser` entity.
+    -   Uses `UserManager` to save the new user to the database.
+    -   Calls `IEmailService` and `ITwoFactorService` to send emails/codes.
+5.  **Response:** The handler returns a `RegisterResponseDto`, which is then sent back to the client by the controller.
 
-### 🗄️ **Infrastructure Layer (`Courses.Infrastructure`)**
-
-```csharp
-// Data Access
-public class AppDbContext : IdentityDbContext<ApplicationUser>
-{
-    // DbContext implementation
-}
-
-// External Services
-public class ExternalEmailService : IEmailService
-{
-    // External email provider implementation
-}
-```
-
-### 🌐 **API Layer (`Courses.Api`)**
-
-```csharp
-// Controllers
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
-{
-    private readonly IEmailService _emailService;
-
-    public AuthController(IEmailService emailService)
-    {
-        _emailService = emailService;
-    }
-}
-```
-
----
-
-## 🔄 **Dependency Flow**
-
-### ✅ **Correct Dependencies:**
-
-```
-API → Application → Domain
-Infrastructure → Application → Domain
-```
-
-### ❌ **Wrong Dependencies:**
-
-```
-API → Infrastructure (Direct)
-API → Domain (Direct)
-```
-
----
-
-## 🎯 **Why Services in Application Layer?**
-
-### ✅ **Benefits:**
-
-#### 1. **Separation of Concerns**
-
-```csharp
-// Application Layer - Business Logic
-public class EmailService : IEmailService
-{
-    public async Task<bool> SendVerificationCodeAsync(string to, string code)
-    {
-        // Business logic for email verification
-        var subject = "Email Verification";
-        var body = CreateVerificationEmailTemplate(code);
-        return await SendEmailAsync(to, subject, body);
-    }
-}
-```
-
-#### 2. **Testability**
-
-```csharp
-// Easy to mock in tests
-public class AuthControllerTests
-{
-    [Fact]
-    public async Task Login_WithValidCredentials_ReturnsToken()
-    {
-        // Arrange
-        var mockEmailService = new Mock<IEmailService>();
-        var controller = new AuthController(mockEmailService.Object);
-
-        // Act & Assert
-    }
-}
-```
-
-#### 3. **Reusability**
-
-```csharp
-// Can be used by multiple layers
-public class TwoFactorService
-{
-    private readonly IEmailService _emailService;
-
-    public TwoFactorService(IEmailService emailService)
-    {
-        _emailService = emailService;
-    }
-}
-```
-
-#### 4. **Maintainability**
-
-```csharp
-// Easy to change implementation
-public class DependencyInjection
-{
-    public static IServiceCollection AddApplicationServices(IServiceCollection services)
-    {
-        services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<ITwoFactorService, TwoFactorService>();
-        return services;
-    }
-}
-```
-
----
-
-## 📁 **Current File Structure**
-
-### ✅ **Application Layer (`Courses.Application/`)**
-
-```
-Services/
-├── IEmailService.cs
-├── EmailService.cs
-├── ITwoFactorService.cs
-└── TwoFactorService.cs
-
-DependencyInjection.cs
-```
-
-### ✅ **API Layer (`Courses.Api/`)**
-
-```
-Controllers/
-├── Auth/
-│   ├── StudentAuthController.cs
-│   ├── InstructorAuthController.cs
-│   ├── AdminAuthController.cs
-│   └── TwoFactorAuthController.cs
-└── CoursesController.cs
-
-Services/
-└── JwtService.cs  # API-specific service
-```
-
----
-
-## 🔧 **Dependency Injection Setup**
-
-### ✅ **Application Layer Registration:**
-
-```csharp
-// Courses.Application/DependencyInjection.cs
-public static class DependencyInjection
-{
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-    {
-        services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<ITwoFactorService, TwoFactorService>();
-        services.AddMemoryCache();
-        return services;
-    }
-}
-```
-
-### ✅ **API Layer Registration:**
-
-```csharp
-// Courses.Api/Program.cs
-builder.Services.AddApplicationServices(); // Register Application services
-builder.Services.AddScoped<IJwtService, JwtService>(); // API-specific service
-```
-
----
-
-## 🧪 **Testing Strategy**
-
-### ✅ **Unit Testing Application Services:**
-
-```csharp
-[TestClass]
-public class EmailServiceTests
-{
-    [TestMethod]
-    public async Task SendVerificationCode_WithValidEmail_ReturnsTrue()
-    {
-        // Arrange
-        var configuration = new Mock<IConfiguration>();
-        var emailService = new EmailService(configuration.Object);
-
-        // Act
-        var result = await emailService.SendVerificationCodeAsync("test@example.com", "123456");
-
-        // Assert
-        Assert.IsTrue(result);
-    }
-}
-```
-
-### ✅ **Integration Testing API Controllers:**
-
-```csharp
-[TestClass]
-public class AuthControllerTests
-{
-    [TestMethod]
-    public async Task Login_WithValidCredentials_ReturnsToken()
-    {
-        // Arrange
-        var mockEmailService = new Mock<IEmailService>();
-        var mockUserManager = new Mock<UserManager<ApplicationUser>>();
-        var controller = new AuthController(mockUserManager.Object, mockEmailService.Object);
-
-        // Act & Assert
-    }
-}
-```
-
----
-
-## 🚀 **Migration Benefits**
-
-### ✅ **Before (Wrong):**
-
--   Services mixed with API controllers
--   Hard to test business logic
--   Tight coupling between layers
--   Difficult to reuse services
-
-### ✅ **After (Correct):**
-
--   Clear separation of concerns
--   Easy to test business logic
--   Loose coupling between layers
--   Highly reusable services
--   Follows Clean Architecture principles
-
----
-
-## 📚 **Best Practices**
-
-### ✅ **Do's:**
-
--   ✅ Put business logic in Application layer
--   ✅ Keep API layer thin (controllers only)
--   ✅ Use interfaces for dependency injection
--   ✅ Register services in appropriate layers
--   ✅ Follow dependency flow rules
-
-### ❌ **Don'ts:**
-
--   ❌ Put business logic in API layer
--   ❌ Create tight coupling between layers
--   ❌ Skip interfaces for services
--   ❌ Mix concerns between layers
-
----
-
-## 🎯 **Summary**
-
-### ✅ **Current Structure is Correct:**
-
-1. **Domain Layer** - Entities and domain logic
-2. **Application Layer** - Services and business logic
-3. **Infrastructure Layer** - Data access and external services
-4. **API Layer** - Controllers and endpoints only
-
-### ✅ **Benefits Achieved:**
-
--   🧪 **Better Testability**
--   🔄 **Higher Reusability**
--   🛠️ **Easier Maintenance**
--   📚 **Cleaner Code Structure**
--   🎯 **Clear Separation of Concerns**
-
-The architecture now follows Clean Architecture principles correctly! 🎉
+This approach ensures that our controllers are lean and only responsible for routing requests and formatting responses, while the core business logic resides within the application layer, completely decoupled from the presentation layer.

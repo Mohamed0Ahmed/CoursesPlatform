@@ -20,19 +20,10 @@ namespace Courses.Infrastructure
 
             try
             {
-                // Ensure database is created
-                dbContext.Database.EnsureCreated();
+                // Apply any pending migrations, and create the database if it doesn't exist.
+                dbContext.Database.Migrate();
+                Console.WriteLine("Database migrations checked and applied successfully!");
 
-                // Apply any pending migrations
-                if (dbContext.Database.GetPendingMigrations().Any())
-                {
-                    dbContext.Database.Migrate();
-                    Console.WriteLine("Database migrations applied successfully!");
-                }
-                else
-                {
-                    Console.WriteLine("Database is up to date!");
-                }
 
                 // Seed default roles
                 SeedDefaultRoles(roleManager).Wait();

@@ -1,302 +1,143 @@
+using Courses.Application.Features.Authentication.Commands.Register;
+using Courses.Application.Features.Authentication.Commands.ResendVerificationCode;
+using Courses.Application.Features.Authentication.Commands.VerifyEmail;
+using Courses.Application.Features.Authentication.Queries.GetCurrentUser;
+using Courses.Application.Features.Authentication.Queries.Login;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+
 namespace Courses.Api.Controllers.Auth
 {
     [ApiController]
     [Route("api/auth/admin")]
     public class AdminAuthController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IJwtService _jwtService;
-        private readonly IEmailService _emailService;
-        private readonly ITwoFactorService _twoFactorService;
+        private readonly IMediator _mediator;
         private readonly ILogger<AdminAuthController> _logger;
 
         public AdminAuthController(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IJwtService jwtService,
-            IEmailService emailService,
-            ITwoFactorService twoFactorService,
+            IMediator mediator,
             ILogger<AdminAuthController> logger)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _jwtService = jwtService;
-            _emailService = emailService;
-            _twoFactorService = twoFactorService;
+            _mediator = mediator;
             _logger = logger;
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<ApiResponse<LoginResponseDto>>> Login([FromBody] LoginRequestDto request)
         {
-            _logger.LogInformation("Admin login attempt for email: {Email}", request.Email);
-
-            var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            try
             {
-                _logger.LogWarning("Admin login failed: User not found for email {Email}", request.Email);
-                return this.Unauthorized<LoginResponseDto>("Invalid email or password");
+                var query = new LoginQuery(request, UserType.Admin);
+                var result = await _mediator.Send(query);
+                return this.Success(result, "Login successful");
             }
-
-            // Check if user is an admin
-            if (user.UserType != UserType.Admin)
+            catch (UnauthorizedAccessException ex)
             {
-                _logger.LogWarning("Admin login failed: Non-admin user attempted to login with email {Email}", request.Email);
-                return this.Unauthorized<LoginResponseDto>("This login is for administrators only");
+                _logger.LogWarning("Admin login failed: {Message}", ex.Message);
+                return this.Unauthorized<LoginResponseDto>(ex.Message);
             }
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            if (!result.Succeeded)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Admin login failed: Invalid password for email {Email}", request.Email);
-                return this.Unauthorized<LoginResponseDto>("Invalid email or password");
+                _logger.LogError(ex, "Unexpected error during admin login");
+                return this.BadRequest<LoginResponseDto>("An unexpected error occurred");
             }
-
-            if (!user.IsActive)
-            {
-                _logger.LogWarning("Admin login failed: Deactivated account for email {Email}", request.Email);
-                return this.Unauthorized<LoginResponseDto>("Account is deactivated");
-            }
-
-            var token = _jwtService.GenerateToken(user);
-            var response = new LoginResponseDto
-            {
-                Token = token,
-                User = new UserInfoDto
-                {
-                    Id = user.Id,
-                    Email = user.Email!,
-                    UserName = user.UserName!,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    UserType = user.UserType.ToString(),
-                    FullName = user.FullName,
-                    IsActive = user.IsActive,
-                    EmailConfirmed = user.EmailConfirmed,
-                    CreatedAt = user.CreatedAt
-                }
-            };
-
-            _logger.LogInformation("Admin login successful for user: {UserId}", user.Id);
-            return this.Success(response, "Login successful");
         }
 
         [HttpPost("register")]
         public async Task<ActionResult<ApiResponse<RegisterResponseDto>>> Register([FromBody] AdminRegisterRequestDto request)
         {
-            _logger.LogInformation("Admin registration attempt for email: {Email}", request.Email);
-
-            var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
-            {
-                _logger.LogWarning("Admin registration failed: Email already exists {Email}", request.Email);
-                return this.BadRequest<RegisterResponseDto>("Email is already registered");
-            }
-
-            var user = new ApplicationUser
-            {
-                UserName = request.Email,
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                UserType = UserType.Admin, // Force admin type
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
-
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description).ToList();
-                _logger.LogWarning("Admin registration failed for email {Email}: {Errors}", request.Email, string.Join(", ", errors));
-                return this.ValidationError<RegisterResponseDto>(errors);
-            }
-
             try
             {
-                // Send welcome email
-                await _emailService.SendWelcomeEmailAsync(user.Email!, user.FullName);
-
-                // Send verification code
-                await _twoFactorService.SendVerificationCodeAsync(user);
-
-                var response = new RegisterResponseDto
-                {
-                    Message = "Registration successful. Please check your email for verification code.",
-                    User = new UserInfoDto
-                    {
-                        Id = user.Id,
-                        Email = user.Email!,
-                        UserName = user.UserName!,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        UserType = user.UserType.ToString(),
-                        FullName = user.FullName,
-                        IsActive = user.IsActive,
-                        EmailConfirmed = user.EmailConfirmed,
-                        CreatedAt = user.CreatedAt
-                    }
-                };
-
-                _logger.LogInformation("Admin registration successful for user: {UserId}", user.Id);
-                return this.Success(response, "Registration successful");
+                var command = new AdminRegisterCommand(request);
+                var result = await _mediator.Send(command);
+                return this.Success(result, "Registration successful");
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning("Admin registration failed: {Message}", ex.Message);
+                return this.BadRequest<RegisterResponseDto>(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error sending welcome email or verification code for admin {UserId}", user.Id);
-                // Registration succeeded but email services failed
-                return this.Success(new RegisterResponseDto
-                {
-                    Message = "Registration successful but there was an issue sending verification email. Please contact support.",
-                    User = new UserInfoDto
-                    {
-                        Id = user.Id,
-                        Email = user.Email!,
-                        UserName = user.UserName!,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        UserType = user.UserType.ToString(),
-                        FullName = user.FullName,
-                        IsActive = user.IsActive,
-                        EmailConfirmed = user.EmailConfirmed,
-                        CreatedAt = user.CreatedAt
-                    }
-                }, "Registration successful with warnings");
+                _logger.LogError(ex, "Unexpected error during admin registration");
+                return this.BadRequest<RegisterResponseDto>("An unexpected error occurred");
             }
         }
 
         [HttpPost("verify-email")]
         public async Task<ActionResult<ApiResponse<VerifyEmailResponseDto>>> VerifyEmail([FromBody] VerifyCodeRequestDto request)
         {
-            _logger.LogInformation("Admin email verification attempt for email: {Email}", request.Email);
-
-            var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            try
             {
-                _logger.LogWarning("Admin email verification failed: User not found for email {Email}", request.Email);
-                return this.BadRequest<VerifyEmailResponseDto>("User not found");
+                var command = new VerifyEmailCommand(request, UserType.Admin);
+                var result = await _mediator.Send(command);
+                return this.Success(result, "Email verified successfully");
             }
-
-            if (user.UserType != UserType.Admin)
+            catch (InvalidOperationException ex)
             {
-                _logger.LogWarning("Admin email verification failed: Non-admin user attempted verification for email {Email}", request.Email);
-                return this.BadRequest<VerifyEmailResponseDto>("This verification is for administrators only");
+                _logger.LogWarning("Admin email verification failed: {Message}", ex.Message);
+                return this.BadRequest<VerifyEmailResponseDto>(ex.Message);
             }
-
-            var isValid = await _twoFactorService.ValidateVerificationCodeAsync(user, request.Code);
-            if (!isValid)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Admin email verification failed: Invalid code for email {Email}", request.Email);
-                return this.BadRequest<VerifyEmailResponseDto>("Invalid or expired verification code");
+                _logger.LogError(ex, "Unexpected error during admin email verification");
+                return this.BadRequest<VerifyEmailResponseDto>("An unexpected error occurred");
             }
-
-            // Mark email as confirmed
-            user.EmailConfirmed = true;
-            await _userManager.UpdateAsync(user);
-
-            var token = _jwtService.GenerateToken(user);
-
-            var response = new VerifyEmailResponseDto
-            {
-                Message = "Email verified successfully!",
-                Token = token,
-                User = new UserInfoDto
-                {
-                    Id = user.Id,
-                    Email = user.Email!,
-                    UserName = user.UserName!,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    UserType = user.UserType.ToString(),
-                    FullName = user.FullName,
-                    IsActive = user.IsActive,
-                    EmailConfirmed = user.EmailConfirmed,
-                    CreatedAt = user.CreatedAt
-                }
-            };
-
-            _logger.LogInformation("Admin email verification successful for user: {UserId}", user.Id);
-            return this.Success(response, "Email verified successfully");
         }
 
         [HttpPost("resend-verification")]
         public async Task<ActionResult<ApiResponse<object>>> ResendVerification([FromBody] SendVerificationCodeRequestDto request)
         {
-            _logger.LogInformation("Admin resend verification attempt for email: {Email}", request.Email);
-
-            var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            try
             {
-                _logger.LogWarning("Admin resend verification failed: User not found for email {Email}", request.Email);
-                return this.BadRequest<object>("User not found");
+                var command = new ResendVerificationCodeCommand(request, UserType.Admin);
+                await _mediator.Send(command);
+                return this.Success<object>(null!, "Verification code sent to your email");
             }
-
-            if (user.UserType != UserType.Admin)
+            catch (InvalidOperationException ex)
             {
-                _logger.LogWarning("Admin resend verification failed: Non-admin user attempted for email {Email}", request.Email);
-                return this.BadRequest<object>("This verification is for administrators only");
+                _logger.LogWarning("Admin resend verification failed: {Message}", ex.Message);
+                return this.BadRequest<object>(ex.Message);
             }
-
-            if (user.EmailConfirmed)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Admin resend verification failed: Email already verified for {Email}", request.Email);
-                return this.BadRequest<object>("Email is already verified");
+                _logger.LogError(ex, "Unexpected error during admin resend verification");
+                return this.BadRequest<object>("An unexpected error occurred");
             }
-
-            var emailSent = await _twoFactorService.SendVerificationCodeAsync(user);
-            if (!emailSent)
-            {
-                _logger.LogError("Admin resend verification failed: Could not send code for email {Email}", request.Email);
-                return this.BadRequest<object>("Failed to send verification code. Please try again.");
-            }
-
-            _logger.LogInformation("Admin verification code resent successfully for user: {UserId}", user.Id);
-            return this.Success<object>(null!, "Verification code sent to your email");
         }
 
         [HttpGet("me")]
+        [Authorize]
         public async Task<ActionResult<ApiResponse<UserInfoDto>>> GetCurrentAdmin()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
+            try
             {
-                _logger.LogWarning("GetCurrentAdmin failed: No user ID in token");
-                return this.Unauthorized<UserInfoDto>("User not authenticated");
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return this.Unauthorized<UserInfoDto>("User not authenticated");
+                }
+
+                var query = new GetCurrentUserQuery(userId, UserType.Admin);
+                var result = await _mediator.Send(query);
+                return this.Success(result, "User information retrieved successfully");
             }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
+            catch (InvalidOperationException ex)
             {
-                _logger.LogWarning("GetCurrentAdmin failed: User not found for ID {UserId}", userId);
-                return this.NotFound<UserInfoDto>("User not found");
+                _logger.LogWarning("GetCurrentAdmin failed: {Message}", ex.Message);
+                return this.BadRequest<UserInfoDto>(ex.Message);
             }
-
-            // Verify user is an admin
-            if (user.UserType != UserType.Admin)
+            catch(UnauthorizedAccessException ex)
             {
-                _logger.LogWarning("GetCurrentAdmin failed: Non-admin user attempted access {UserId}", userId);
-                return this.Unauthorized<UserInfoDto>("Access denied");
+                _logger.LogWarning("GetCurrentAdmin failed: {Message}", ex.Message);
+                return this.Unauthorized<UserInfoDto>(ex.Message);
             }
-
-            var response = new UserInfoDto
+            catch (Exception ex)
             {
-                Id = user.Id,
-                Email = user.Email!,
-                UserName = user.UserName!,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                UserType = user.UserType.ToString(),
-                FullName = user.FullName,
-                IsActive = user.IsActive,
-                EmailConfirmed = user.EmailConfirmed,
-                CreatedAt = user.CreatedAt
-            };
-
-            _logger.LogInformation("GetCurrentAdmin successful for user: {UserId}", user.Id);
-            return this.Success(response, "User information retrieved successfully");
+                _logger.LogError(ex, "Unexpected error during GetCurrentAdmin");
+                return this.BadRequest<UserInfoDto>("An unexpected error occurred");
+            }
         }
     }
-
 }

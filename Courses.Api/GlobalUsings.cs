@@ -1,18 +1,22 @@
 // Extensions
-global using Courses.Api.Services;
 global using Courses.Api.Extensions;
-// Application Services
-global using Courses.Application.Abstraction;
+
+
 // Domain Models
 global using Courses.Domain.Identity;
 // Infrastructure
 global using Courses.Infrastructure.Data;
+
+
 global using Courses.Shared.BaseResponse;
 global using Courses.Shared.Enum;
 // Shared Base Classes
 
 // DTOs
 global using Courses.Shared.DTOs.AuthDtos;
+
+
+
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Mvc;

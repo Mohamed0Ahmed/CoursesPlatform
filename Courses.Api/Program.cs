@@ -8,23 +8,13 @@ namespace Courses.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-
-            //var key = RandomNumberGenerator.GetBytes(32); // 256-bit
-            //var base64Key = Convert.ToBase64String(key);
-            //Console.WriteLine(base64Key);
-
-
-
             #region Configure Services
 
             // Add Infrastructure Services (DbContext)
             builder.Services.AddInfrastructure(builder.Configuration);
 
             // Add Application Services
-            builder.Services.AddApplicationServices();
-
-            // Add JWT Service
-            builder.Services.AddScoped<IJwtService, JwtService>();
+            builder.Services.AddApplication();
 
             // Configure JWT Authentication
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -108,11 +98,7 @@ namespace Courses.Api
 
             #endregion
 
-
-
             var app = builder.Build();
-
-
 
             #region Apply Migrations
 
@@ -120,8 +106,6 @@ namespace Courses.Api
             app.UseInfrastructure();
 
             #endregion
-
-
 
             #region Configure Middleware
 

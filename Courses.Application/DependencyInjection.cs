@@ -1,21 +1,25 @@
+using Courses.Application.Abstraction.Email;
+using Courses.Application.Abstraction.Jwt;
+using Courses.Application.Abstraction.TwoFactor;
+using Courses.Application.Services.Email;
+using Courses.Application.Services.Jwt;
+using Courses.Application.Services.TwoFactor;
+using Microsoft.Extensions.DependencyInjection;
 
+namespace Courses.Application;
 
-namespace Courses.Application
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-        {
-            // Register Email Service
-            services.AddScoped<IEmailService, EmailService>();
+        // Register MediatR
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 
-            // Register Two-Factor Service
-            services.AddScoped<ITwoFactorService, TwoFactorService>();
+        // Register Services
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ITwoFactorService, TwoFactorService>();
+        services.AddScoped<IJwtService, JwtService>();
 
-            // Add Memory Cache for 2FA codes
-            services.AddMemoryCache();
-
-            return services;
-        }
+        return services;
     }
 }
